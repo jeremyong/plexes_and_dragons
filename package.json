@@ -1,0 +1,11 @@
+{
+  "name": "plexes_and_dragons",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@gitlab.com:jeremy16/plexes_and_dragons.git",
+  "author": "Jeremy Ong <jeremy@plexchat.com>",
+  "private": true,
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}
