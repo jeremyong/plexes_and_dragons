@@ -23,7 +23,7 @@ function submit_board() {
     param += ',';
     param += preview_state[i];
   }
-  const url = `${window.origin}?board=${param}`;
+  const url = `${window.origin}/board.html?board=${param}`;
   console.log(url);
 }
 

@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
   </head>
   <body>
     <canvas id="preview" width="0" height="0">
     </canvas>
+    <br />
+    <button onclick="play()">
+      Play!
+    </button>
+    <button onclick="pause_resume()">
+      Pause!
+    </button>
+    <button onclick="restart()">
+      Restart!
+    </button>
+    <br />
+    <div id="swap_counter">
+    </div>
+    <br />
+    <button id="submit" onclick="submit()">
+      Submit!
+    </button>
     <script id="2d-vertex-shader" type="glsl">
      attribute vec2 a_position;
      attribute vec2 a_texCoord;
@@ -48,6 +66,14 @@
      }
 
      const preview_state = get_query_string('board').split(',');
+     let user_movements = get_query_string('movements');
+     if (user_movements) {
+       user_movements = user_movements.split(',').map(m => parseInt(m, 10));
+     }
+
+     if (user_movements) {
+       document.getElementById('submit').remove();
+     }
      const types = {
        "dark": true,
        "light": true,
