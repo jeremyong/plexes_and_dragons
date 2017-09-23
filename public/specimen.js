@@ -13,6 +13,20 @@ gl.enable(gl.BLEND);
 gl.clearColor(0.0, 0.0, 0.0, 1.0);
 let pixels = null;
 
+function submit_board() {
+  if (!preview_state || preview_state.length === 0) {
+    return;
+  }
+
+  let param = preview_state[0];
+  for (let i = 1; i !== preview_state.length; i += 1) {
+    param += ',';
+    param += preview_state[i];
+  }
+  const url = `${window.origin}?board=${param}`;
+  console.log(url);
+}
+
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.viewport(0, 0, back_width, back_height);
@@ -104,6 +118,8 @@ function scan() {
   preview_canvas.height = orb_width * 5;
   render_preview();
 }
+
+const tolerance = 20;
 
 function check(r, g, b, r1, g1, b1) {
   return Math.abs(r - r1) < tolerance
