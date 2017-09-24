@@ -168,7 +168,7 @@ function init_grid() {
 }
 
 function gesture_start(e) {
-  if (start || frozen || disabled) {
+  if (start || frozen || disabled || !expanded) {
     return;
   }
 
@@ -317,8 +317,6 @@ function render_preview() {
 
 const orb_images = {};
 
-let orb_init_queued = false;
-
 let orb_images_loaded = 0;
 function load_orb_images() {
   Object.keys(types).forEach((type) => {
@@ -328,11 +326,8 @@ function load_orb_images() {
       orb_images[type] = image;
       orb_images_loaded += 1;
 
-      if (orb_images_loaded === Object.keys(types).length) {
-        if (orb_init_queued) {
-          init_orbs();
-        }
-      }
+      preview_queued = true;
+      init_orbs();
     };
   });
 }
@@ -340,11 +335,8 @@ load_orb_images();
 
 function init_orbs() {
   if (orb_images_loaded !== Object.keys(types).length) {
-    orb_init_queued = true;
     return;
   }
-
-  orb_init_queued = false;
 
   Object.keys(types).forEach((type) => {
     draw_calls[type] = initImage(gl_preview, orb_images[type], orb_width, orb_width, orb_width * 6, orb_width * 5);
@@ -359,9 +351,6 @@ function init_orbs() {
     }
   });
 }
-
-preview_queued = true;
-init_orbs();
 
 function expand() {
   window.EmbedsAPI.Static.presentFullscreen(window.location.href);
