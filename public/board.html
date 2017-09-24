@@ -23,6 +23,10 @@
     <button id="submit" onclick="submit()">
       Submit!
     </button>
+    <br />
+    <button onclick="expand()">
+      Dismiss!
+    </button>
     <script id="2d-vertex-shader" type="glsl">
      attribute vec2 a_position;
      attribute vec2 a_texCoord;
@@ -54,9 +58,10 @@
      }
     </script>
     <script type="text/javascript">
-     const back_width = 300;
-     const orb_width = Math.floor(back_width / 6);
+     let back_width = window.innerWidth - 30;
+     let orb_width = Math.floor(back_width / 6);
      const draw_calls = {};
+     const disabled = false;
 
      function get_query_string(field) {
        const href = window.location.href;
@@ -65,6 +70,7 @@
        return string ? string[1] : null;
      }
 
+     const expanded = get_query_string('plex-embed') === 'fullscreen';
      const preview_state = get_query_string('board').split(',');
      let user_movements = get_query_string('movements');
      if (user_movements) {
@@ -83,6 +89,7 @@
        "heart": true,
      };
     </script>
+    <script src="embed.js" type="text/javascript"></script>
     <script src="util.js" type="text/javascript"></script>
     <script src="preview.js" type="text/javascript"></script>
   </body>

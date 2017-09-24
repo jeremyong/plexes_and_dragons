@@ -1,9 +1,8 @@
 const specimen_canvas = document.getElementById("specimen");
-const back_width = 300;
-const orb_width = Math.floor(back_width / 6);
+let back_width = 300;
+let orb_width = Math.floor(back_width / 6);
+const window_size = 20;
 let back_height = 0;
-
-const draw_calls = {};
 
 const gl = specimen_canvas.getContext("webgl", {
   preserveDrawingBuffer: true,
@@ -23,8 +22,11 @@ function submit_board() {
     param += ',';
     param += preview_state[i];
   }
-  const url = `${window.origin}/board.html?board=${param}`;
+  const url = `${window.location.protocol}//${window.location.host}/board.html?board=${param}`;
   console.log(url);
+  if (window.EmbedsAPI) {
+    window.EmbedsAPI.Static.addAttachment(url);
+  }
 }
 
 function render() {
@@ -35,6 +37,7 @@ function render() {
 
   if (!pixels) {
     pixels = readRaster();
+    scan();
   }
 }
 
@@ -59,8 +62,8 @@ function histogram(x, y) {
     counts[type] = 0;
   });
 
-  for (let i = x - 15; i < x + 15; i += 1) {
-    for (let j = y - 15; j < y + 15; j += 1) {
+  for (let i = x - window_size; i < x + window_size; i += 1) {
+    for (let j = y - window_size; j < y + window_size; j += 1) {
       const { r, g, b } = pixelAt(i, back_height - j);
       Object.keys(types).forEach((type) => {
         if (types[type](r, g, b)) {
@@ -89,6 +92,7 @@ function scan() {
 
   let seed_max = 0;
   let offset = 0;
+
   for (let i = -10; i !== 10; i += 1) {
     const { result, count } = histogram(x_0, y_0 + i);
     if (seed_max < count) {
@@ -100,6 +104,8 @@ function scan() {
   y_0 = y_0 + offset - 4 * orb_width;
   console.log('starting at', y_0, seed_max, offset);
 
+  let debug = '';
+
   const results = [];
   for (let i = 0; i !== 5; i += 1) {
     for (let j = 0; j !== 6; j += 1) {
@@ -107,19 +113,27 @@ function scan() {
       const y = orb_width * i + y_0;
 
       const { result } = histogram(x, y);
+      debug += result;
+      debug += ' ';
 
       results.push(result);
     }
+    debug += '\n';
   }
   console.log(results);
   preview_state = results;
+
+  const log = document.getElementById('log');
+  if (log) {
+    log.innerHTML = debug;
+  }
 
   preview_canvas.width = orb_width * 6;
   preview_canvas.height = orb_width * 5;
   render_preview();
 }
 
-const tolerance = 20;
+const tolerance = 15;
 
 function check(r, g, b, r1, g1, b1) {
   return Math.abs(r - r1) < tolerance
@@ -127,29 +141,41 @@ function check(r, g, b, r1, g1, b1) {
     && Math.abs(b - b1) < tolerance;
 }
 
+const ref_colors = {
+  light: [ 169, 154, 97 ],
+  dark: [ 109, 80, 150 ],
+  fire: [ 243, 68, 62 ],
+  wood: [ 94, 152, 111 ],
+  water: [ 106, 132, 165 ],
+  heart: [ 238, 106, 190 ],
+};
+
 const types = {
   light: (r, g, b) => {
-    return check(r, g, b, 169, 154, 97);
+    return check(r, g, b, ...ref_colors.light);
   },
 
   dark: (r, g, b) => {
-    return check(r, g, b, 145, 91, 140);
+    return check(r, g, b, ...ref_colors.dark) ||
+      check(r, g, b, 53, 16, 109);
   },
 
   fire: (r, g, b) => {
-    return check(r, g, b, 179, 98, 84);
+    return check(r, g, b, ...ref_colors.fire) ||
+      check(r, g, b, 255, 199, 162);
   },
 
   wood: (r, g, b) => {
-    return check(r, g, b, 94, 152, 111);
+    return check(r, g, b, ...ref_colors.wood);
   },
 
   water: (r, g, b) => {
-    return check(r, g, b, 106, 132, 165);
+    return check(r, g, b, ...ref_colors.water);
   },
 
   heart: (r, g, b) => {
-    return check(r, g, b, 238, 106, 190);
+    return check(r, g, b, ...ref_colors.heart) ||
+      check(r, g, b, 255, 94, 189);
   }
 };
 
@@ -167,7 +193,6 @@ function handleFile() {
       pixels = null;
       handleSample(image);
       render();
-      scan();
     };
   };
   reader.readAsDataURL(file);

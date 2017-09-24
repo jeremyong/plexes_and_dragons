@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
   </head>
   <body>
+    <div id="log">
+    </div>
+    <br />
     <button onclick="sample_colors()">Sample!</button>
     <button onclick="read_color()">Read!</button>
     <button onclick="analyze()">Analyze!</button>
@@ -12,12 +16,23 @@
     <br />
     <button onclick="toggle_filter()">Toggle filter!</button>
     <br />
+    <div id="active_orb">
+      dark
+    </div>
+    <button onclick="toggle_active">Toggle Active Orb!</button>
+    <button onclick="assign()">Assign!</button>
+    <br />
     <canvas id="preview" width="25" height="25"></canvas>
     <br />
     <canvas id="canvas" width="300" height="600">
     </canvas>
     <br />
     <input type="file" id="input" onchange="handleFile()" />
+    <br />
+    <button id="close-button" data-plexchat-close-window>Close Button</button>
+    <br />
+    <a href="/analysis.html">Reload</a>
+    <a href="/" type="text/javascript">Root</a>
     <script id="2d-vertex-shader" type="glsl">
      attribute vec2 a_position;
      attribute vec2 a_texCoord;
@@ -66,7 +81,8 @@
        gl_FragColor = vec4(color.rgb, 1);
      }
     </script>
-    <script src="main.js" type="text/javascript"></script>
+    <script src="embed.js" type="text/javascript"></script>
+    <script src="analysis.js" type="text/javascript"></script>
     <img id="reticle" src="reticle.png" style="display: none;" onload="handleReticle()" />
     <img id="sample" src="sample.jpg" style="display: none;" onload="handleSample()" />
   </body>

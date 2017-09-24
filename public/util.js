@@ -43,6 +43,10 @@ function rectangle(x, y, width, height) {
 
 // returns a draw call that will render an image
 function initImage(context, image, width, height, canvas_width, canvas_height) {
+  if (!image) {
+    return;
+  }
+
   const vertexShaderSource = document.getElementById('2d-vertex-shader').text;
   const fragmentShaderSource = document.getElementById('2d-fragment-shader').text;
 

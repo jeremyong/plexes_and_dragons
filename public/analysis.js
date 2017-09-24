@@ -1,6 +1,5 @@
-const canvas = document.getElementById("canvas");
-const preview = document.getElementById("preview");
-const rect = canvas.getBoundingClientRect();
+const specimen = document.getElementById("canvas");
+const preview_canvas = document.getElementById("preview");
 let backdrop = null;
 let filtered_backdrop = null;
 let filter_enabled = 0;
@@ -25,31 +24,64 @@ function check(r, g, b, r1, g1, b1) {
     && Math.abs(b - b1) < tolerance;
 }
 
+const ref_colors = {
+  light: [ 169, 154, 97 ],
+  dark: [ 109, 80, 150 ],
+  fire: [ 243, 68, 62 ],
+  wood: [ 94, 152, 111 ],
+  water: [ 106, 132, 165 ],
+  heart: [ 238, 106, 190 ],
+};
+
 const types = {
   light: (r, g, b) => {
-    return check(r, g, b, 169, 154, 97);
+    return check(r, g, b, ...ref_colors.light);
   },
 
   dark: (r, g, b) => {
-    return check(r, g, b, 145, 91, 140);
+    return check(r, g, b, ...ref_colors.dark) ||
+      check(r, g, b, 53, 16, 109);
   },
 
   fire: (r, g, b) => {
-    return check(r, g, b, 179, 98, 84);
+    return check(r, g, b, ...ref_colors.fire) ||
+      check(r, g, b, 255, 199, 162);
   },
 
   wood: (r, g, b) => {
-    return check(r, g, b, 94, 152, 111);
+    return check(r, g, b, ...ref_colors.wood);
   },
 
   water: (r, g, b) => {
-    return check(r, g, b, 106, 132, 165);
+    return check(r, g, b, ...ref_colors.water);
   },
 
   heart: (r, g, b) => {
-    return check(r, g, b, 238, 106, 190);
+    return check(r, g, b, ...ref_colors.heart) ||
+      check(r, g, b, 255, 94, 189);
   }
 };
+
+function active_orb() {
+  const orb = document.getElementById('active_orb');
+  return orb.innerHTML;
+}
+
+function toggle_active() {
+  const orb = document.getElementById('active_orb');
+  const colors = Object.keys(ref_colors);
+  for (let i = 0; i !== colors.length; i += 1) {
+    if (colors[i] === orb.innerHTML) {
+      orb.innerHTML = colors[(i + 1) % colors.length];
+    }
+  }
+}
+
+function assign() {
+  const active = active_orb();
+  const { r, g, b } = pixelAt(target_x, back_height - target_y);
+  ref_colors[active] = [ r, g, b ];
+}
 
 const reference_order = [
   "heart", "dark", "light", "dark", "wood", "fire",
@@ -92,29 +124,39 @@ function sample_kernel() {
 
 let dragActive = false;
 
-canvas.addEventListener('mousedown', (e) => {
+function gesture_start(e) {
   dragActive = true;
   positionReticle(e);
-});
-canvas.addEventListener('mousemove', positionReticle);
-canvas.addEventListener('mouseup', () => dragActive = false);
+  e.preventDefault();
+}
+specimen.addEventListener('mousedown', gesture_start, false);
+specimen.addEventListener('touchstart', gesture_start, false);
+
+specimen.addEventListener('mousemove', positionReticle, false);
+specimen.addEventListener('touchmove', positionReticle, false);
+
+window.addEventListener('mouseup', () => dragActive = false, false);
+window.addEventListener('touchend', () => dragActive = false, false);
 
 function positionReticle(e) {
   if (!dragActive) {
     return;
   }
-  target_x = e.clientX - rect.left;
-  target_y = e.clientY - rect.top;
+  const rect = specimen.getBoundingClientRect();
+  const x = e.clientX !== undefined ? e.clientX : e.touches[0].pageX - 20;
+  const y = e.clientY !== undefined ? e.clientY : e.touches[0].pageY - 20;
+  target_x = x - rect.left;
+  target_y = y - rect.top;
   reticle_x = target_x - 25;
   reticle_y = target_y - 25;
   render();
 }
 
-const gl_preview = preview.getContext("webgl");
+const gl_preview = preview_canvas.getContext("webgl");
 gl_preview.clearColor(0.0, 0.0, 0.0, 1.0);
 gl_preview.clear(gl_preview.COLOR_BUFFER_BIT);
 
-const gl = canvas.getContext("webgl", {
+const gl = specimen.getContext("webgl", {
   preserveDrawingBuffer: true,
 });
 const sample_framebuffer = gl.createFramebuffer();
@@ -140,9 +182,7 @@ function render(displayReticle = true) {
     }
 
     if (!pixels) {
-      // filtered_backdrop(0, 0);
       pixels = readRaster();
-      // backdrop(0, 0);
     }
   }
 
@@ -189,16 +229,23 @@ function jitter(x, y) {
   return points;
 }
 
+function log(text) {
+  const div = document.getElementById('log');
+  div.innerHTML = text;
+}
+
 function sample_colors() {
   console.log(target_x, target_y);
   const { r, g, b } = sampleAt(target_x, target_y);
-  console.log(r, g, b);
+  log(`${r}, ${g}, ${b}, ${luminance(r, g, b)}`);
   setPreviewColor(r, g, b);
 }
 
 function read_color() {
   const { r, g, b } = pixelAt(target_x, back_height - target_y);
   console.log(r, g, b, luminance(r, g, b));
+  log(`${r}, ${g}, ${b}, ${luminance(r, g, b)}`);
+
   setPreviewColor(r, g, b);
 }
 
@@ -221,19 +268,6 @@ function extractReferences() {
 }
 
 function analyze(x, y) {
-  /*
-  const points = jitter(x || target_x, y || target_y);
-  const samples = [];
-  for (let i = 0; i !== points.length; i += 1) {
-    const { x, y } = points[i];
-    samples.push(sampleAt(x, y));
-    const points_2 = jitter(x, y, 1);
-    for (let j = 0; j !== points_2.length; j += 1) {
-      const { x: x2, y: y2 } = points_2[j];
-      samples.push(sampleAt(x2, y2));
-    }
-  }
-  */
   if (x === undefined) {
     x = target_x;
   }
@@ -311,27 +345,6 @@ function sampleAt(x, y) {
   return { r, g, b };
 }
 
-function identify(r, g, b) {
-  let min_error = Infinity;
-  let result = null;
-  Object.keys(references).forEach((key) => {
-    const v = references[key];
-    const error =
-          Math.pow(v.r - r, 2) +
-          Math.pow(v.g - g, 2) +
-          Math.pow(v.b - b, 2);
-    if (error < min_error) {
-      min_error = error;
-      result = key;
-    }
-  });
-
-  return {
-    result,
-    error: min_error,
-  };
-}
-
 function histogram(x, y) {
   const counts = {};
   Object.keys(types).forEach((type) => {
@@ -391,6 +404,7 @@ function scan() {
     }
   }
   console.log(results);
+  log(results.join(', '));
 }
 
 function handleFile() {
@@ -435,8 +449,8 @@ function handleSample(image) {
   const sampleImage = image || document.getElementById("sample");
   back_width = 300;
   back_height = Math.floor(sampleImage.height * 300 / sampleImage.width);
-  canvas.width = back_width;
-  canvas.height = back_height;
+  specimen.width = back_width;
+  specimen.height = back_height;
 
   backdrop = initImage(sampleImage, back_width, back_height);
   filtered_backdrop = initImage(sampleImage, back_width, back_height, sample_framebuffer, true);

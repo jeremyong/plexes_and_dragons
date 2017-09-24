@@ -1,5 +1,5 @@
 const preview_canvas = document.getElementById("preview");
-const swap_counter = document.getElementById('swap_counter');
+const swap_counter_div = document.getElementById('swap_counter');
 
 let mouse_x = 0;
 let mouse_y = 0;
@@ -10,8 +10,8 @@ let prev_coord_y = 0;
 
 function setMousePos(e) {
   const rect = preview_canvas.getBoundingClientRect();
-  const x = e.clientX !== undefined ? e.clientX : e.touches[0].pageX;
-  const y = e.clientY !== undefined ? e.clientY : e.touches[0].pageY;
+  const x = e.clientX !== undefined ? e.clientX : e.touches[0].pageX - 20;
+  const y = e.clientY !== undefined ? e.clientY : e.touches[0].pageY - 20;
   mouse_x = x - rect.left;
   mouse_y = y - rect.top;
   coord_x = Math.floor(mouse_x / orb_width);
@@ -24,9 +24,9 @@ let grid = [];
 
 let movements = user_movements || [];
 
-function save_movement() {
+function save_movement(prevent_null_moves = false) {
   // Prevent storing back-and-forth transposes
-  if (movements.length >= 4) {
+  if (prevent_null_moves && movements.length >= 4) {
     const x = movements[movements.length - 4];
     const y = movements[movements.length - 3];
     if (x === coord_x && y === coord_y) {
@@ -53,7 +53,7 @@ function check_swap(with_save = true) {
     prev_coord_x = coord_x;
     prev_coord_y = coord_y;
     swap_count += 1;
-    swap_counter.innerHTML = `${swap_count} moves`;
+    swap_counter_div.innerHTML = `${swap_count} moves`;
     if (with_save) {
       save_movement();
     }
@@ -168,7 +168,7 @@ function init_grid() {
 }
 
 function gesture_start(e) {
-  if (start || frozen) {
+  if (start || frozen || disabled) {
     return;
   }
 
@@ -221,6 +221,11 @@ window.addEventListener('touchmove', function (e) {
 });
 
 function gesture_end(e) {
+  if (!expanded) {
+    expand();
+    return;
+  }
+
   if (!drag_started) {
     return;
   }
@@ -241,7 +246,9 @@ function submit() {
   if (drag_started) {
     return;
   }
-  console.log(`${window.location.href}&movements=${movements.join(',')}`);
+  if (movements.length > 0) {
+    window.EmbedsAPI.Static.replyAttachment(`${window.location.href}&movements=${movements.join(',')}`);
+  }
 }
 
 let preview_queued = preview_state && preview_state.length > 0;
@@ -262,10 +269,12 @@ function render_update() {
   let deferred = null;
   for (let i = 0; i !== 5; i += 1) {
     for (let j = 0; j !== 6; j += 1) {
-      if ((start || drag_started) && i === coord_y && j === coord_x) {
-        deferred = () => draw_calls[grid[i][j]](mouse_x - Math.floor(orb_width / 2), mouse_y - Math.floor(orb_width / 2));
-      } else {
-        draw_calls[grid[i][j]](x, y);
+      if (grid[i][j]) {
+        if ((start || drag_started) && i === coord_y && j === coord_x) {
+          deferred = () => draw_calls[grid[i][j]](mouse_x - Math.floor(orb_width / 2), mouse_y - Math.floor(orb_width / 2));
+        } else {
+          draw_calls[grid[i][j]](x, y);
+        }
       }
       x += orb_width;
       index += 1;
@@ -306,20 +315,62 @@ function render_preview() {
   }
 }
 
+const orb_images = {};
 
-function init_orbs() {
+let orb_init_queued = false;
+
+let orb_images_loaded = 0;
+function load_orb_images() {
   Object.keys(types).forEach((type) => {
     const image = new Image();
     image.src = `orbs/${type}.png`;
     image.onload = function () {
-      draw_calls[type] = initImage(gl_preview, image, orb_width, orb_width, orb_width * 6, orb_width * 5);
-      orbs_loaded += 1;
-      if (preview_queued && orbs_loaded === Object.keys(types).length) {
-        render_preview();
+      orb_images[type] = image;
+      orb_images_loaded += 1;
+
+      if (orb_images_loaded === Object.keys(types).length) {
+        if (orb_init_queued) {
+          init_orbs();
+        }
       }
     };
   });
 }
+load_orb_images();
+
+function init_orbs() {
+  if (orb_images_loaded !== Object.keys(types).length) {
+    orb_init_queued = true;
+    return;
+  }
+
+  orb_init_queued = false;
+
+  Object.keys(types).forEach((type) => {
+    draw_calls[type] = initImage(gl_preview, orb_images[type], orb_width, orb_width, orb_width * 6, orb_width * 5);
+    orbs_loaded += 1;
+    const log = document.getElementById('log');
+
+    if (orbs_loaded === Object.keys(types).length) {
+      if (preview_queued) {
+        render_preview();
+      }
+      orbs_loaded = 0;
+    }
+  });
+}
+
+preview_queued = true;
 init_orbs();
 
+function expand() {
+  window.EmbedsAPI.Static.presentFullscreen(window.location.href);
+}
 
+window.onresize = function (e) {
+  // back_width = document.documentElement.clientWidth - 30;
+  back_width = window.innerWidth - 30;
+  orb_width = Math.floor(back_width / 6);
+  preview_queued = true;
+  init_orbs();
+};
