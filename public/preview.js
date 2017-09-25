@@ -388,7 +388,11 @@ function init_orbs() {
 }
 
 function expand() {
-  window.EmbedsAPI.Static.presentFullscreen(window.location.href);
+  if (expanded) {
+    window.EmbedsAPI.Static.closeWindow(window.location.href);
+  } else {
+    window.EmbedsAPI.Static.presentFullscreen(window.location.href);
+  }
 }
 
 // log_div.innerHTML = `window: ${window.innerWidth}`;
