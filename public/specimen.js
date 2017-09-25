@@ -64,6 +64,7 @@ function submit_board() {
   if (window.EmbedsAPI) {
     window.EmbedsAPI.Static.addAttachment(url);
   }
+  return false;
 }
 
 function render() {
@@ -267,7 +268,7 @@ const types = {
 };
 
 function handleFile() {
-  const file = document.getElementById("input").files[0];
+  const file = document.getElementById("screenshot").files[0];
   if (!file) {
     return;
   }

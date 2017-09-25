@@ -5,33 +5,42 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   </head>
   <body>
-    <div style="margin-left: 30px">
-    <h2>PlexPad</h2>
+    <div class="jumbotron">
+    <h2 class="card-title text-center">PlexPad</h2>
     <p>
       Select the board format below and submit a screenshot for processing.
     </p>
     </div>
-    <br />
     <div style="margin-left: 30px" >
-    <form>
+    <form onsubmit="return false;">
+      <div class="form-check form-group">
+        <label class="form-check-label">
       <input type="radio" name="boardType" onclick="change_type(0)" value="5x4" /> 5x4
+      </label>
+        <label class="form-check-label">
       <input type="radio" name="boardType" onclick="change_type(1)" value="6x5" checked /> 6x5
+      </label>
+        <label class="form-check-label">
       <input type="radio" name="boardType" onclick="change_type(2)" value="7x6" /> 7x6
-    </form>
-    <br />
-    <input type="file" id="input" onchange="handleFile()" accept=".png, .jpg, .jpeg" />
-    <br />
-    <canvas id="preview" width="0" height="0">
-    </canvas>
+      </label>
+      </div>
+      <div class="form-group">
+    <label class="btn btn-primary" for="screenshot">
+      Select Screenshot <input type="file" id="screenshot" onchange="handleFile()" accept=".png, .jpg, .jpeg" style="display: none" />
+    </label>
     <br />
     <button id="submit" onclick="submit_board()" class="btn btn-primary" disabled>Submit</button>
     <div id="report">
     </div>
-    <br />
+      </div>
     <button onclick="expand()" class="btn btn-secondary">
       Dismiss!
     </button>
+    </form>
     <br />
+    <br />
+    <canvas id="preview" width="0" height="0">
+    </canvas>
     <br />
     <canvas id="specimen" width="0" height="0">
     </canvas>
