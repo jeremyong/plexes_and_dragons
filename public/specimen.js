@@ -233,7 +233,8 @@ const types = {
 
   dark: (r, g, b) => {
     return check(r, g, b, ...ref_colors.dark) ||
-      check(r, g, b, 53, 16, 109);
+      check(r, g, b, 53, 16, 109) ||
+      check(r, g, b, 131, 46, 174);
   },
 
   fire: (r, g, b) => {
