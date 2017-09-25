@@ -59,7 +59,8 @@ function submit_board() {
     }
     param += preview_state[i];
   }
-  const url = `${window.location.protocol}//${window.location.host}/plexes_and_dragons/board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
+  const path = window.location.host === 'jeremy16.gitlab.io' ? 'plexes_and_dragons/' : '';
+  const url = `${window.location.protocol}//${window.location.host}/${path}board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
   console.log(url);
   if (window.EmbedsAPI) {
     window.EmbedsAPI.Static.addAttachment(url);
