@@ -60,7 +60,7 @@
      }
     </script>
     <script type="text/javascript">
-     let back_width = window.innerWidth - 30;
+     let back_width = Math.min(window.innerWidth, 300) - 30;
      let orb_width = Math.floor(back_width / 6);
      const draw_calls = {};
      const disabled = false;

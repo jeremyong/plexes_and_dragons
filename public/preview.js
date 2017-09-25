@@ -356,7 +356,7 @@ function load_orb_images() {
       orb_images[type] = image;
       orb_images_loaded += 1;
 
-      back_width = window.innerWidth - 30;
+      back_width = Math.min(window.innerWidth, 300) - 30;
       orb_width = Math.floor(back_width / orbs_width);
       preview_queued = true;
       init_orbs();
@@ -393,7 +393,7 @@ window.onresize = function (e) {
   // log_div.innerHTML = `window: ${window.innerWidth}`;
   initialized = false;
   orbs_loaded = false;
-  back_width = Math.max(window.innerWidth, 300) - 30;
+  back_width = Math.min(window.innerWidth, 300) - 30;
   orb_width = Math.floor(back_width / orbs_width);
   preview_queued = true;
   init_orbs();

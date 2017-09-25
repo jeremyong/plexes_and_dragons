@@ -186,9 +186,9 @@ function check(r, g, b, r1, g1, b1) {
 }
 
 const ref_colors = {
-  light: [ 169, 154, 97 ],
+  light: [ 240, 250, 110 ],
   dark: [ 109, 80, 150 ],
-  fire: [ 243, 68, 62 ],
+  fire: [ 233, 68, 50 ],
   wood: [ 94, 152, 111 ],
   water: [ 106, 132, 165 ],
   heart: [ 238, 106, 190 ],
@@ -198,7 +198,8 @@ const ref_colors = {
 
 const types = {
   light: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.light);
+    return check(r, g, b, ...ref_colors.light) ||
+      check(r, g, b, 216, 181, 79);
   },
 
   dark: (r, g, b) => {
@@ -212,11 +213,13 @@ const types = {
   },
 
   wood: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.wood);
+    return check(r, g, b, ...ref_colors.wood) ||
+      check(r, g, b, 68, 211, 106);
   },
 
   water: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.water);
+    return check(r, g, b, ...ref_colors.water) ||
+      check(r, g, b, 62, 173, 252);
   },
 
   heart: (r, g, b) => {
