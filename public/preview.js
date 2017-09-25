@@ -1,5 +1,6 @@
 const preview_canvas = document.getElementById("preview");
 const swap_counter_div = document.getElementById('swap_counter');
+const log_div = document.getElementById('log');
 
 let mouse_x = 0;
 let mouse_y = 0;
@@ -77,6 +78,8 @@ function restart() {
 let paused = false;
 let pause_position = null;
 let stopped = false;
+let loop_interval = 0;
+
 function step_animation(timestamp) {
   if (stopped) {
     stopped = false;
@@ -103,6 +106,9 @@ function step_animation(timestamp) {
 
   if (movements.length - 2 <= 2 * initial) {
     start = null;
+    if (loop_interval) {
+      setTimeout(play, loop_interval);
+    }
     return;
   }
 
@@ -121,6 +127,14 @@ function step_animation(timestamp) {
   render_update();
 
   window.requestAnimationFrame(step_animation);
+}
+
+function loop() {
+  if (movements.length === 0) {
+    return;
+  }
+  loop_interval = 3000;
+  play();
 }
 
 function play() {
@@ -252,14 +266,19 @@ function submit() {
 }
 
 let preview_queued = preview_state && preview_state.length > 0;
-let orbs_loaded = 0;
 
 const gl_preview = preview_canvas.getContext('webgl');
 gl_preview.clearColor(1.0, 1.0, 1.0, 1.0);
 gl_preview.blendFunc(gl_preview.SRC_ALPHA, gl_preview.ONE_MINUS_SRC_ALPHA);
 gl_preview.enable(gl_preview.BLEND);
 
+let initialized = false;
+
 function render_update() {
+  if (!initialized) {
+    return;
+  }
+
   gl_preview.clear(gl_preview.COLOR_BUFFER_BIT);
   gl_preview.viewport(0, 0, back_width, orb_width * 5);
 
@@ -287,11 +306,15 @@ function render_update() {
   }
 }
 
+
+let orbs_loaded = false;
 function render_preview() {
-  if (orbs_loaded !== Object.keys(types).length) {
+  if (!orbs_loaded) {
     preview_queued = true;
     return;
   }
+
+  initialized = true;
 
   preview_canvas.width = back_width;
   preview_canvas.height = orb_width * 5;
@@ -326,6 +349,8 @@ function load_orb_images() {
       orb_images[type] = image;
       orb_images_loaded += 1;
 
+      back_width = window.innerWidth - 30;
+      orb_width = Math.floor(back_width / 6);
       preview_queued = true;
       init_orbs();
     };
@@ -340,24 +365,27 @@ function init_orbs() {
 
   Object.keys(types).forEach((type) => {
     draw_calls[type] = initImage(gl_preview, orb_images[type], orb_width, orb_width, orb_width * 6, orb_width * 5);
-    orbs_loaded += 1;
-    const log = document.getElementById('log');
-
-    if (orbs_loaded === Object.keys(types).length) {
-      if (preview_queued) {
-        render_preview();
-      }
-      orbs_loaded = 0;
-    }
   });
+
+  orbs_loaded = true;
+
+  if (preview_queued) {
+    render_preview();
+    if (!expanded) {
+      loop();
+    }
+  }
 }
 
 function expand() {
   window.EmbedsAPI.Static.presentFullscreen(window.location.href);
 }
 
+// log_div.innerHTML = `window: ${window.innerWidth}`;
 window.onresize = function (e) {
-  // back_width = document.documentElement.clientWidth - 30;
+  // log_div.innerHTML = `window: ${window.innerWidth}`;
+  initialized = false;
+  orbs_loaded = false;
   back_width = window.innerWidth - 30;
   orb_width = Math.floor(back_width / 6);
   preview_queued = true;
