@@ -16,6 +16,15 @@ function constrain_aspect() {
     back_width = window_width;
     orb_width = Math.floor(back_width / orbs_width);
   }
+
+  const preview_element = document.getElementById('preview');
+  if (preview_element) {
+    preview_element.setAttribute('style', `margin-left: ${Math.floor((window.innerWidth - back_width) / 2)}px`)
+  }
+  const controls_element = document.getElementById('controls');
+  if (controls_element) {
+    controls_element.setAttribute('style', `margin-left: ${Math.floor((window.innerWidth - back_width) / 2)}px`)
+  }
 }
 
 function createShader(context, type, source) {
