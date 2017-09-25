@@ -192,6 +192,8 @@ const ref_colors = {
   wood: [ 94, 152, 111 ],
   water: [ 106, 132, 165 ],
   heart: [ 238, 106, 190 ],
+  jammer: [ 8, 25, 52 ],
+  poison: [ 255, 255, 255 ],
 };
 
 const types = {
@@ -220,6 +222,16 @@ const types = {
   heart: (r, g, b) => {
     return check(r, g, b, ...ref_colors.heart) ||
       check(r, g, b, 255, 94, 189);
+  },
+
+  jammer: (r, g, b) => {
+    return false;
+    return check(r, g, b, ...ref_colors.jammer);
+  },
+
+  poison: (r, g, b) => {
+    return false;
+    return check(r, g, b, ...ref_colors.poison);
   }
 };
 

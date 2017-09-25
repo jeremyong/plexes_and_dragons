@@ -393,7 +393,7 @@ window.onresize = function (e) {
   // log_div.innerHTML = `window: ${window.innerWidth}`;
   initialized = false;
   orbs_loaded = false;
-  back_width = window.innerWidth - 30;
+  back_width = Math.max(window.innerWidth, 300) - 30;
   orb_width = Math.floor(back_width / orbs_width);
   preview_queued = true;
   init_orbs();
