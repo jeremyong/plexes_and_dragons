@@ -1,3 +1,23 @@
+function constrain_aspect() {
+  let window_width = window.innerWidth;
+  let window_height = window.innerHeight;
+  if (window_width > 300) {
+    window_height = Math.floor(window_height * 300 / window_width);
+    window_width = 300;
+  }
+
+  if (window_width / orbs_width > window_height / orbs_height) {
+    // constrain based on height
+    const height = window_height;
+    orb_width = Math.floor(height / orbs_height);
+    back_width = orb_width * orbs_width;
+  } else {
+    // constrain based on width
+    back_width = window_width;
+    orb_width = Math.floor(back_width / orbs_width);
+  }
+}
+
 function createShader(context, type, source) {
   const shader = context.createShader(type);
   context.shaderSource(shader, source);

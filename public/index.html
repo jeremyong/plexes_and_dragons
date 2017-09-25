@@ -2,9 +2,14 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   </head>
   <body>
     <h2>PlexPad</h2>
+    <p>
+      Select the board format below and submit a screenshot for processing.
+    </p>
+    <br />
     <form>
       <input type="radio" name="boardType" onclick="change_type(0)" value="5x4" />
       5x4
@@ -13,6 +18,9 @@
       <input type="radio" name="boardType" onclick="change_type(2)" value="7x6" />
       7x6
     </form>
+    <br />
+    <input type="file" id="input" onchange="handleFile()" />
+    <br />
     <canvas id="preview" width="0" height="0">
     </canvas>
     <br />
@@ -23,11 +31,12 @@
     <canvas id="specimen" width="0" height="0">
     </canvas>
     <br />
-    <input type="file" id="input" onchange="handleFile()" />
-    <br />
-    <button id="close-button" data-plexchat-close-window>Exit</button>
+    <button onclick="expand()">
+      Dismiss!
+    </button>
     <br />
     <a href="/">Reload</a>
+    <br />
     <div id="log">
     </div>
     <script id="2d-vertex-shader" type="glsl">
