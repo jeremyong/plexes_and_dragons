@@ -11,8 +11,8 @@ let prev_coord_y = 0;
 
 function setMousePos(e) {
   const rect = preview_canvas.getBoundingClientRect();
-  const x = e.clientX !== undefined ? e.clientX : e.touches[0].pageX - 20;
-  const y = e.clientY !== undefined ? e.clientY : e.touches[0].pageY - 20;
+  const x = e.clientX !== undefined ? e.clientX : e.touches[0].pageX - Math.floor(orb_width / 3);
+  const y = e.clientY !== undefined ? e.clientY : e.touches[0].pageY - Math.floor(orb_width / 3);
   mouse_x = x - rect.left;
   mouse_y = y - rect.top;
   coord_x = Math.floor(mouse_x / orb_width);
@@ -68,6 +68,7 @@ function restart() {
   }
   frozen = !!user_movements;
   swap_count = 0;
+  swap_counter_div.innerHTML = '';
   init_grid();
   start = null;
   paused = false;
@@ -171,10 +172,10 @@ function pause_resume() {
 function init_grid() {
   grid = [];
   let index = 0;
-  for (let i = 0; i !== 5; i += 1) {
+  for (let i = 0; i !== orbs_height; i += 1) {
     row = [];
     grid.push(row);
-    for (let j = 0; j !== 6; j += 1) {
+    for (let j = 0; j !== orbs_width; j += 1) {
       row.push(preview_state[index]);
       index += 1;
     }
@@ -280,14 +281,14 @@ function render_update() {
   }
 
   gl_preview.clear(gl_preview.COLOR_BUFFER_BIT);
-  gl_preview.viewport(0, 0, back_width, orb_width * 5);
+  gl_preview.viewport(0, 0, back_width, orb_width * orbs_height);
 
   let index = 0;
   let x = 0;
   let y = 0;
   let deferred = null;
-  for (let i = 0; i !== 5; i += 1) {
-    for (let j = 0; j !== 6; j += 1) {
+  for (let i = 0; i !== orbs_height; i += 1) {
+    for (let j = 0; j !== orbs_width; j += 1) {
       if (grid[i][j]) {
         if ((start || drag_started) && i === coord_y && j === coord_x) {
           deferred = () => draw_calls[grid[i][j]](mouse_x - Math.floor(orb_width / 2), mouse_y - Math.floor(orb_width / 2));
@@ -317,19 +318,25 @@ function render_preview() {
   initialized = true;
 
   preview_canvas.width = back_width;
-  preview_canvas.height = orb_width * 5;
+  preview_canvas.height = orb_width * orbs_height;
 
   preview_queued = false;
 
   gl_preview.clear(gl_preview.COLOR_BUFFER_BIT);
-  gl_preview.viewport(0, 0, back_width, orb_width * 5);
+  gl_preview.viewport(0, 0, back_width, orb_width * orbs_height);
+
+  if (preview_state.length < orbs_height * orbs_width) {
+    return;
+  }
 
   let index = 0;
   let x = 0;
   let y = 0;
-  for (let i = 0; i !== 5; i += 1) {
-    for (let j = 0; j !== 6; j += 1) {
-      draw_calls[preview_state[index]](x, y);
+  for (let i = 0; i !== orbs_height; i += 1) {
+    for (let j = 0; j !== orbs_width; j += 1) {
+      if (preview_state[index]) {
+        draw_calls[preview_state[index]](x, y);
+      }
       x += orb_width;
       index += 1;
     }
@@ -350,7 +357,7 @@ function load_orb_images() {
       orb_images_loaded += 1;
 
       back_width = window.innerWidth - 30;
-      orb_width = Math.floor(back_width / 6);
+      orb_width = Math.floor(back_width / orbs_width);
       preview_queued = true;
       init_orbs();
     };
@@ -364,7 +371,7 @@ function init_orbs() {
   }
 
   Object.keys(types).forEach((type) => {
-    draw_calls[type] = initImage(gl_preview, orb_images[type], orb_width, orb_width, orb_width * 6, orb_width * 5);
+    draw_calls[type] = initImage(gl_preview, orb_images[type], orb_width, orb_width, orb_width * orbs_width, orb_width * orbs_height);
   });
 
   orbs_loaded = true;
@@ -387,7 +394,7 @@ window.onresize = function (e) {
   initialized = false;
   orbs_loaded = false;
   back_width = window.innerWidth - 30;
-  orb_width = Math.floor(back_width / 6);
+  orb_width = Math.floor(back_width / orbs_width);
   preview_queued = true;
   init_orbs();
 };

@@ -1,7 +1,8 @@
 const specimen_canvas = document.getElementById("specimen");
+const report_div = document.getElementById('report');
 let back_width = 300;
-let orb_width = Math.floor(back_width / 6);
-const window_size = 20;
+let orb_width = Math.floor(back_width / orbs_width);
+let window_size = 20;
 let back_height = 0;
 
 const gl = specimen_canvas.getContext("webgl", {
@@ -14,15 +15,24 @@ let pixels = null;
 
 function submit_board() {
   if (!preview_state || preview_state.length === 0) {
+    report_div.innerHTML = 'Please supply an board screenshot to scan';
     return;
   }
 
   let param = preview_state[0];
+  if (param === null) {
+    report_div.innerHTML = 'We encountered a few orbs we could not identify. Have you selected the correct board type?';
+    return;
+  }
   for (let i = 1; i !== preview_state.length; i += 1) {
     param += ',';
+    if (preview_state[i] === null) {
+      report_div.innerHTML = 'We encountered a few orbs we could not identify. Have you selected the correct board type?';
+      return;
+    }
     param += preview_state[i];
   }
-  const url = `${window.location.protocol}//${window.location.host}/board.html?board=${param}`;
+  const url = `${window.location.protocol}//${window.location.host}/board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
   console.log(url);
   if (window.EmbedsAPI) {
     window.EmbedsAPI.Static.addAttachment(url);
@@ -87,6 +97,10 @@ function histogram(x, y) {
 }
 
 function scan() {
+  if (!pixels) {
+    return;
+  }
+
   let x_0 = Math.floor(orb_width / 2);
   let y_0 = back_height - x_0;
 
@@ -101,14 +115,14 @@ function scan() {
     }
   }
 
-  y_0 = y_0 + offset - 4 * orb_width;
+  y_0 = y_0 + offset - (orbs_height - 1) * orb_width;
   console.log('starting at', y_0, seed_max, offset);
 
   let debug = '';
 
   const results = [];
-  for (let i = 0; i !== 5; i += 1) {
-    for (let j = 0; j !== 6; j += 1) {
+  for (let i = 0; i !== orbs_height; i += 1) {
+    for (let j = 0; j !== orbs_width; j += 1) {
       const x = orb_width * j + x_0;
       const y = orb_width * i + y_0;
 
@@ -128,9 +142,39 @@ function scan() {
     log.innerHTML = debug;
   }
 
-  preview_canvas.width = orb_width * 6;
-  preview_canvas.height = orb_width * 5;
+  preview_canvas.width = orb_width * orbs_width;
+  preview_canvas.height = orb_width * orbs_height;
   render_preview();
+}
+
+function change_type(type) {
+  let changed = false;
+  if (type === 0) {
+    if (orbs_width !== 5) {
+      orbs_width = 5;
+      orbs_height = 4;
+      changed = true;
+    }
+  } else if (type === 1) {
+    if (orbs_width !== 6) {
+      orbs_width = 6;
+      orbs_height = 5;
+      changed = true;
+    }
+  } else {
+    if (orbs_width !== 7) {
+      orbs_width = 7;
+      orbs_height = 6;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    orb_width = Math.floor(back_width / orbs_width);
+    window_size = Math.floor(0.4 * orb_width);
+    init_orbs();
+    scan();
+  }
 }
 
 const tolerance = 15;

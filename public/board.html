@@ -82,6 +82,11 @@
      if (user_movements) {
        document.getElementById('submit').remove();
      }
+
+     let user_orbs_width = get_query_string('orbs_width');
+     let orbs_width = user_orbs_width ? parseInt(user_orbs_width, 10) : 6;
+     let user_orbs_height = get_query_string('orbs_height');
+     let orbs_height = user_orbs_height ? parseInt(user_orbs_height, 10) : 5;
      const types = {
        "dark": true,
        "light": true,
