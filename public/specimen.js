@@ -59,7 +59,7 @@ function submit_board() {
     }
     param += preview_state[i];
   }
-  const url = `${window.location.protocol}//${window.location.host}/board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
+  const url = `${window.location.protocol}//${window.location.host}/plexes_and_dragons/board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
   console.log(url);
   if (window.EmbedsAPI) {
     window.EmbedsAPI.Static.addAttachment(url);
