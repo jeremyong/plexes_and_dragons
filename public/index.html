@@ -5,40 +5,37 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   </head>
   <body>
+    <div style="margin-left: 30px">
     <h2>PlexPad</h2>
     <p>
       Select the board format below and submit a screenshot for processing.
     </p>
+    </div>
     <br />
+    <div style="margin-left: 30px" >
     <form>
-      <input type="radio" name="boardType" onclick="change_type(0)" value="5x4" />
-      5x4
-      <input type="radio" name="boardType" onclick="change_type(1)" value="6x5" checked />
-      6x5
-      <input type="radio" name="boardType" onclick="change_type(2)" value="7x6" />
-      7x6
+      <input type="radio" name="boardType" onclick="change_type(0)" value="5x4" /> 5x4
+      <input type="radio" name="boardType" onclick="change_type(1)" value="6x5" checked /> 6x5
+      <input type="radio" name="boardType" onclick="change_type(2)" value="7x6" /> 7x6
     </form>
     <br />
-    <input type="file" id="input" onchange="handleFile()" />
+    <input type="file" id="input" onchange="handleFile()" accept=".png, .jpg, .jpeg" />
     <br />
     <canvas id="preview" width="0" height="0">
     </canvas>
     <br />
-    <button id="submit" onclick="submit_board()">Submit</button>
+    <button id="submit" onclick="submit_board()" class="btn btn-primary" disabled>Submit</button>
     <div id="report">
     </div>
+    <br />
+    <button onclick="expand()" class="btn btn-secondary">
+      Dismiss!
+    </button>
+    <br />
     <br />
     <canvas id="specimen" width="0" height="0">
     </canvas>
     <br />
-    <button onclick="expand()">
-      Dismiss!
-    </button>
-    <br />
-    <a href="/">Reload</a>
-    <br />
-    <div id="log">
-    </div>
     <script id="2d-vertex-shader" type="glsl">
      attribute vec2 a_position;
      attribute vec2 a_texCoord;

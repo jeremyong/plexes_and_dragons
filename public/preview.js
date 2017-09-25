@@ -245,6 +245,11 @@ function gesture_end(e) {
     return;
   }
 
+  const submit_button = document.getElementById('submit');
+  if (submit_button) {
+    submit_button.removeAttribute('disabled');
+  }
+
   drag_started = false;
   render_update();
   e.preventDefault();

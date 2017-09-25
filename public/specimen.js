@@ -13,6 +13,33 @@ gl.enable(gl.BLEND);
 gl.clearColor(0.0, 0.0, 0.0, 1.0);
 let pixels = null;
 
+function disable_submit() {
+  document.getElementById('submit').setAttribute('disabled', '');
+}
+
+function enable_submit() {
+  document.getElementById('submit').removeAttribute('disabled');
+}
+
+function verify() {
+  if (!preview_state || preview_state.length < orbs_height * orbs_width) {
+    report_div.innerHTML = 'Please supply an board screenshot to scan';
+    disable_submit();
+    return false;
+  }
+
+  for (let i = 0; i !== preview_state.length; i += 1) {
+    if (preview_state[i] === null) {
+      report_div.innerHTML = 'We encountered a few orbs we could not identify. Have you selected the correct board type?';
+      disable_submit();
+      return false;
+    }
+  }
+
+  enable_submit();
+  return true;
+}
+
 function submit_board() {
   if (!preview_state || preview_state.length === 0) {
     report_div.innerHTML = 'Please supply an board screenshot to scan';
@@ -116,7 +143,7 @@ function scan() {
   }
 
   y_0 = y_0 + offset - (orbs_height - 1) * orb_width;
-  console.log('starting at', y_0, seed_max, offset);
+  // console.log('starting at', y_0, seed_max, offset);
 
   let debug = '';
 
@@ -134,8 +161,9 @@ function scan() {
     }
     debug += '\n';
   }
-  console.log(results);
+  // console.log(results);
   preview_state = results;
+  verify();
 
   const log = document.getElementById('log');
   if (log) {
