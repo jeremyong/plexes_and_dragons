@@ -183,7 +183,15 @@ function init_grid() {
 }
 
 function gesture_start(e) {
-  if (start || frozen || disabled || !expanded) {
+  if (movement_disabled) {
+    setMousePos(e);
+    prev_coord_x = coord_x;
+    prev_coord_y = coord_y;
+    e.preventDefault();
+    return;
+  }
+
+  if (start || frozen || !expanded) {
     return;
   }
 
@@ -236,6 +244,34 @@ window.addEventListener('touchmove', function (e) {
 });
 
 function gesture_end(e) {
+  if (movement_disabled && e.target === preview_canvas) {
+    setMousePos(e);
+    if (prev_coord_x === coord_x && prev_coord_y === coord_y) {
+      const index = coord_y * orbs_width + coord_x;
+      if (preview_state.length - 1 < index) {
+        return;
+      }
+      const current = preview_state[index];
+      if (!current) {
+        preview_state[index] = 'light';
+      } else {
+        let next_index = 0;
+        const type_keys = Object.keys(types);
+        for (let i = 0; i !== type_keys.length; i += 1) {
+          if (type_keys[i] === current) {
+            next_index = (i + 1) % type_keys.length;
+            break;
+          }
+        }
+        preview_state[index] = type_keys[next_index];
+      }
+
+      render_preview();
+    }
+    e.preventDefault();
+    return;
+  }
+
   if (!expanded) {
     expand();
     return;

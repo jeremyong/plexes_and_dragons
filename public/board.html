@@ -70,7 +70,7 @@
       let back_width = 0;
       let orb_width = 0;
       const draw_calls = {};
-      const disabled = false;
+      const movement_disabled = false;
 
       function get_query_string(field) {
         const href = window.location.href;
@@ -96,6 +96,8 @@
       let orbs_height = user_orbs_height ? parseInt(user_orbs_height, 10) : 5;
       constrain_aspect();
       const types = {
+        "poison": true,
+        "jammer": true,
         "dark": true,
         "light": true,
         "fire": true,
