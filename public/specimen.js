@@ -59,7 +59,12 @@ function submit_board() {
     }
     param += preview_state[i];
   }
-  const path = window.location.host === 'jeremy16.gitlab.io' ? 'plexes_and_dragons/' : '';
+  let path = '';
+  if (window.location.host === 'www.jeremyong.com') {
+    path = 'plexes_and_dragons/public/';
+  } else if (window.location.host === 'jeremy16.gitlab.io') {
+    path = 'plexes_and_dragons';
+  }
   const url = `${window.location.protocol}//${window.location.host}/${path}board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
   console.log(url);
   if (window.EmbedsAPI) {
