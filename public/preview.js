@@ -218,11 +218,11 @@ document.body.addEventListener('touchstart', (e) => {
 }, false);
 
 function gesture_move(e) {
+  setMousePos(e);
+
   if (!drag_started) {
     return;
   }
-
-  setMousePos(e);
 
   check_swap();
 
@@ -245,7 +245,6 @@ window.addEventListener('touchmove', function (e) {
 
 function gesture_end(e) {
   if (movement_disabled && e.target === preview_canvas) {
-    setMousePos(e);
     if (prev_coord_x === coord_x && prev_coord_y === coord_y) {
       const index = coord_y * orbs_width + coord_x;
       if (preview_state.length - 1 < index) {
