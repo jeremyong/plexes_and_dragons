@@ -302,7 +302,9 @@ function submit() {
     return;
   }
   if (movements.length > 0) {
-    window.EmbedsAPI.Static.replyAttachment(`${window.location.href}&movements=${movements.join(',')}`);
+    const url = `${window.location.href}&movements=${movements.join(',')}`;
+    console.log(url);
+    window.EmbedsAPI.Static.replyAttachment(url);
   }
 }
 

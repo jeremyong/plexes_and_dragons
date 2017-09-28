@@ -23,7 +23,7 @@ function enable_submit() {
 
 function verify() {
   if (!preview_state || preview_state.length < orbs_height * orbs_width) {
-    report_div.innerHTML = 'Please supply an board screenshot to scan';
+    report_div.innerHTML = 'Please supply a valid board screenshot to scan';
     disable_submit();
     return false;
   }
@@ -42,7 +42,7 @@ function verify() {
 
 function submit_board() {
   if (!preview_state || preview_state.length === 0) {
-    report_div.innerHTML = 'Please supply an board screenshot to scan';
+    report_div.innerHTML = 'Please supply a board screenshot to scan';
     return;
   }
 
@@ -63,13 +63,11 @@ function submit_board() {
   if (window.location.host === 'www.jeremyong.com') {
     path = 'plexes_and_dragons/public/';
   } else if (window.location.host === 'jeremy16.gitlab.io') {
-    path = 'plexes_and_dragons';
+    path = 'plexes_and_dragons/';
   }
   const url = `${window.location.protocol}//${window.location.host}/${path}board.html?board=${param}&orbs_height=${orbs_height}&orbs_width=${orbs_width}`;
   console.log(url);
-  if (window.EmbedsAPI) {
-    window.EmbedsAPI.Static.addAttachment(url);
-  }
+  window.EmbedsAPI.Static.addAttachment(url);
   return false;
 }
 
