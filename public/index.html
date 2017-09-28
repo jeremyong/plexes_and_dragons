@@ -29,6 +29,7 @@
       Select Screenshot <input type="file" id="screenshot" onchange="handleFile()" accept=".png, .jpg, .jpeg" style="display: none" />
     </label>
     <br />
+    <button class="btn btn-secondary" onclick="randomize()">Randomize</button>
     <button id="submit" onclick="submit_board()" class="btn btn-primary" disabled>Submit</button>
     <div id="report">
     </div>
@@ -77,6 +78,9 @@
     </script>
     <script type="text/javascript">
      let preview_state = [];
+     for (let i = 0; i !== 30; i += 1) {
+       preview_state.push('heart');
+     }
      const user_movements = null;
      const draw_calls = {};
      const movement_disabled = true;

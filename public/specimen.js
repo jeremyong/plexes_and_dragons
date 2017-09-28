@@ -207,6 +207,7 @@ function change_type(type) {
   if (changed) {
     orb_width = Math.floor(back_width / orbs_width);
     window_size = Math.floor(0.4 * orb_width);
+
     init_orbs();
     scan();
   }
@@ -232,15 +233,9 @@ const ref_colors = {
 };
 
 const types = {
-  light: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.light) ||
-      check(r, g, b, 216, 181, 79);
-  },
-
-  dark: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.dark) ||
-      check(r, g, b, 53, 16, 109) ||
-      check(r, g, b, 131, 46, 174);
+  heart: (r, g, b) => {
+    return check(r, g, b, ...ref_colors.heart) ||
+      check(r, g, b, 255, 94, 189);
   },
 
   fire: (r, g, b) => {
@@ -258,9 +253,15 @@ const types = {
       check(r, g, b, 62, 173, 252);
   },
 
-  heart: (r, g, b) => {
-    return check(r, g, b, ...ref_colors.heart) ||
-      check(r, g, b, 255, 94, 189);
+  light: (r, g, b) => {
+    return check(r, g, b, ...ref_colors.light) ||
+      check(r, g, b, 216, 181, 79);
+  },
+
+  dark: (r, g, b) => {
+    return check(r, g, b, ...ref_colors.dark) ||
+      check(r, g, b, 53, 16, 109) ||
+      check(r, g, b, 131, 46, 174);
   },
 
   jammer: (r, g, b) => {
@@ -300,4 +301,12 @@ function handleSample(image) {
   specimen_canvas.height = back_height;
 
   draw_calls.backdrop = initImage(gl, sampleImage, back_width, back_height, back_width, back_height);
+}
+
+function randomize() {
+  const colors = [ 'heart', 'fire', 'wood', 'water', 'light', 'dark' ];
+  for (let i = 0; i !== orbs_width * orbs_height; i += 1) {
+    preview_state[i] = colors[Math.floor(Math.random() * colors.length)];
+  }
+  render_preview();
 }
